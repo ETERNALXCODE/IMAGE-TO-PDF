@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo to PDF Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #6dd5ed, #ffffff);
+            color: #333;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 2.5rem;
+        }
+
+        #upload-box {
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px;
+        }
+
+        input[type="file"] {
+            margin: 10px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.1);
+        }
+
+        #status {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #credits, #about {
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            text-align: left;
+        }
+
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Photo to PDF Converter</h1>
+    <div id="upload-box">
+        <input type="file" id="file-input" multiple accept="image/*">
+        <button id="generate-pdf">Convert to PDF</button>
+    </div>
+    <p id="status"></p>
+
+    <div id="about">
+        <h2>About This Website</h2>
+        <p>This website allows users to upload photos and converts them into a PDF format. It has been designed as a project to demonstrate file handling and PDF generation using client-side technologies.</p>
+        <p>Credits: Subham Pandey</p>
+        <p>Email: <a href="mailto:subham16213@gmail.com">subham16213@gmail.com</a></p>
+        <p>Thankyou for using our project..</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        document.getElementById('generate-pdf').addEventListener('click', function () {
+            const fileInput = document.getElementById('file-input');
+            const status = document.getElementById('status');
+
+            if (fileInput.files.length === 0) {
+                status.textContent = "Please upload at least one image!";
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+            let uploadedImages = 0;
+
+            for (let i = 0; i < fileInput.files.length; i++) {
+                const file = fileInput.files[i];
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.src = event.target.result;
+
+                    img.onload = function () {
+                        const imgWidth = 210; // PDF page width in mm (A4 size)
+                        const imgHeight = (img.height / img.width) * imgWidth;
+                        if (uploadedImages === 0) {
+                            pdf.addImage(img, 'JPEG', 0, 0, imgWidth, imgHeight);
+                        } else {
+                            pdf.addPage();
+                            pdf.addImage(img, 'JPEG', 0, 0, imgWidth, imgHeight);
+                        }
+                        uploadedImages++;
+
+                        if (uploadedImages === fileInput.files.length) {
+                            pdf.save('output.pdf');
+                            status.textContent = "PDF generated successfully!";
+                        }
+                    };
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>
